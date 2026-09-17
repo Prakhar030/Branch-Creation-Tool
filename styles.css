@@ -1,0 +1,323 @@
+﻿:root {
+  --blue: #1f78b4;
+  --grey: #808080;
+  --ink: #222;
+  --border: #d6d9de;
+  --bg: #f5f6f8;
+  --danger: #c0392b;
+  --warn: #b8860b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+#app, .screen { height: 100%; }
+.screen[hidden] { display: none; }
+
+/* ---------- Load screen ---------- */
+#loadScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.load-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px 36px;
+  max-width: 620px;
+  width: 90%;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+}
+
+.load-card h1 { margin: 0 0 8px; font-size: 22px; }
+.load-card.minimal { text-align: center; padding: 40px 48px; }
+.load-card.minimal h1 { margin-bottom: 14px; }
+.subtitle { color: #555; font-size: 13.5px; line-height: 1.5; margin-bottom: 22px; }
+
+.file-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.file-label.secondary { font-weight: 500; color: #555; }
+.file-label input { display: block; margin-top: 8px; font-weight: normal; }
+.file-label code { background: #eef0f3; padding: 1px 5px; border-radius: 4px; }
+
+.load-status { font-size: 13px; margin: 6px 0 10px; min-height: 18px; }
+.load-status.error { color: var(--danger); font-weight: 600; }
+.load-status.ok { color: #1a7a3c; font-weight: 600; }
+
+.validation-panel { margin: 10px 0 18px; }
+.validation-panel h3 { font-size: 14px; margin: 0 0 6px; }
+.validation-list { font-size: 12.5px; max-height: 160px; overflow-y: auto; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+.validation-errors { background: #fdecea; color: var(--danger); }
+.validation-warnings { background: #fff8e1; color: #8a6d00; }
+.validation-list div { padding: 2px 0; }
+
+.primary-btn {
+  background: var(--blue);
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.primary-btn:disabled { background: #a9c4d6; cursor: not-allowed; }
+.load-card-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+.secondary-btn {
+  background: white;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.secondary-btn:hover { background: #f0f2f5; }
+.secondary-btn:disabled { color: #999; cursor: not-allowed; background: #f7f8fa; }
+
+/* ---------- Main screen ---------- */
+#topBar {
+  height: 48px;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+#topBar h1 { font-size: 16px; margin: 0; }
+#sourceFileLabel { font-size: 12px; color: #666; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.warnings-badge {
+  border: 1px solid #f0d999;
+  background: #fff8e1;
+  color: #8a6d00;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.warnings-badge:hover { background: #fff1c2; }
+
+#body { display: flex; height: calc(100% - 48px); }
+#mapPane { position: relative; flex: 1; }
+#map { position: absolute; inset: 0; }
+
+#sidePanel {
+  width: 340px;
+  min-width: 340px;
+  background: white;
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.floating-panel {
+  position: absolute;
+  z-index: 500;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  padding: 10px 12px;
+  font-size: 12.5px;
+}
+#layerControl { top: 12px; right: 12px; width: 230px; }
+#ruleControl { top: 12px; left: 52px; width: 250px; }
+.floating-panel-title { font-weight: 700; margin-bottom: 6px; }
+.floating-panel label { display: block; margin: 3px 0; cursor: pointer; }
+#ruleControl select, #baseMapSelect { width: 100%; margin-top: 4px; }
+.rule-hint { color: #777; font-size: 11px; margin-top: 6px; }
+
+/* ---------- Drawing UX ---------- */
+.draw-hint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 700;
+  background: rgba(20, 24, 30, 0.88);
+  color: #fff;
+  padding: 8px 10px 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  max-width: 90%;
+}
+.draw-hint button {
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.draw-hint button:hover { background: rgba(255,255,255,0.25); }
+
+.coord-indicator {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  z-index: 600;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Leaflet.draw's own vertex markers (used both while drawing and while
+   editing a Branch polygon) - made into small, clearly visible circles. */
+.leaflet-editing-icon {
+  border-radius: 50% !important;
+  background: #d35400 !important;
+  border: 2px solid #fff !important;
+  box-shadow: 0 0 3px rgba(0,0,0,0.6);
+}
+
+/* The live rubber-band line Leaflet.draw renders from the last clicked
+   point to the current mouse position while drawing a polygon. */
+.leaflet-draw-guide-dash {
+  background: #d35400 !important;
+  opacity: 0.9 !important;
+  width: 5px !important;
+  height: 5px !important;
+}
+
+.panel-section { margin-bottom: 16px; }
+.panel-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #555;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+.conflict-title { color: var(--danger); }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12.5px; }
+.stats-grid .stat { background: #f7f8fa; border-radius: 6px; padding: 6px 8px; }
+.stats-grid .stat b { display: block; font-size: 16px; }
+
+.scroll-list { max-height: 200px; overflow-y: auto; font-size: 12.5px; }
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 3px;
+}
+.list-row:hover { background: #f0f2f5; }
+.list-row .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 6px; }
+.list-row.selected { outline: 2px solid var(--blue); }
+.list-row .count { color: #666; font-size: 11.5px; }
+.list-row-actions button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--blue);
+  margin-left: 4px;
+}
+
+.summary-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.summary-table th, .summary-table td { border: 1px solid var(--border); padding: 4px 6px; text-align: left; }
+.summary-table th { background: #f7f8fa; }
+
+.actions .action-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.actions .action-btn:hover { background: #f0f2f5; }
+.actions .action-btn.primary { background: var(--blue); color: white; border-color: var(--blue); }
+.actions .action-btn.danger { color: var(--danger); border-color: #f0c4bd; }
+.actions hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.actions .action-btn.active-mode { outline: 2px solid var(--blue); }
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center; z-index: 2000;
+}
+.modal-overlay[hidden] { display: none; }
+.modal-box {
+  background: white; border-radius: 10px; padding: 22px 26px;
+  min-width: 320px; max-width: 520px; max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+.modal-box h3 { margin-top: 0; }
+.modal-box .modal-actions { margin-top: 18px; display: flex; justify-content: flex-end; gap: 8px; }
+.modal-box input[type=text] { width: 100%; padding: 8px; font-size: 14px; border: 1px solid var(--border); border-radius: 6px; margin: 8px 0 4px; }
+.modal-box button { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 13px; }
+.modal-box button.primary { background: var(--blue); color: white; border-color: var(--blue); }
+.modal-box button.danger { background: var(--danger); color: white; border-color: var(--danger); }
+.modal-box ul { padding-left: 18px; font-size: 13px; }
+
+/* ---------- Cluster centroid / branch labels ---------- */
+.star-icon {
+  background: transparent;
+  border: none;
+  color: #000;
+  font-size: 18px;
+  line-height: 16px;
+  text-align: center;
+}
+.leaflet-tooltip.branch-label {
+  font-weight: 700;
+  font-size: 12px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(0,0,0,0.2);
+}
+.metro-icon {
+  background: #8e44ad;
+  color: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  line-height: 15px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid #fff;
+  box-shadow: 0 0 2px rgba(0,0,0,0.6);
+}
+
+/* ---------- Popups ---------- */
+.leaflet-popup-content b { display: inline-block; min-width: 110px; }
+.popup-actions { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
+.popup-actions select { width: 100%; margin-bottom: 6px; }
+.popup-actions button { width: 100%; padding: 5px; cursor: pointer; }
