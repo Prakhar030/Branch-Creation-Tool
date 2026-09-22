@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Branch Creation Tool</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<link rel="stylesheet" href="styles.css?v=20260921d" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== LOAD SCREEN ===================== -->
+  <!-- Shown only briefly while input.xlsx loads, or if that fails. -->
+  <section id="loadScreen" class="screen">
+    <div class="load-card minimal">
+      <h1>Branch Creation Tool</h1>
+      <div id="loadStatus" class="load-status">Loading input.xlsx&hellip;</div>
+    </div>
+  </section>
+
+  <!-- ===================== MAIN APP SCREEN ===================== -->
+  <section id="mainScreen" class="screen" hidden>
+    <header id="topBar">
+      <h1>Branch Creation</h1>
+      <div class="topbar-right">
+        <button id="dataWarningsBtn" class="warnings-badge" hidden></button>
+        <span id="sourceFileLabel"></span>
+      </div>
+    </header>
+
+    <div id="body">
+      <div id="mapPane">
+        <div id="map"></div>
+
+        <div id="drawHint" class="draw-hint" hidden>
+          <span>Click to add boundary points. Click the first point again (or double-click) to finish.</span>
+          <button id="cancelDrawBtn">Cancel</button>
+        </div>
+        <div id="coordIndicator" class="coord-indicator" hidden>
+          Mouse position: <span id="coordText">-</span>
+        </div>
+
+        <div id="layerControl" class="floating-panel">
+          <div class="floating-panel-title">Base map</div>
+          <select id="baseMapSelect">
+            <option value="voyager" selected>Streets (roads &amp; localities)</option>
+            <option value="osm">OpenStreetMap Standard</option>
+            <option value="positron">Light / minimal</option>
+          </select>
+
+          <div class="floating-panel-title" style="margin-top:10px;">Map layers</div>
+          <label><input type="checkbox" id="layerSellers" checked /> Seller Locations</label>
+          <label><input type="checkbox" id="layerBranchOffices" checked /> Branch Offices</label>
+          <label><input type="checkbox" id="layerServiceArea" checked /> Current Branch Service Areas</label>
+          <label><input type="checkbox" id="layerBoundaries" /> Cluster Boundaries</label>
+          <label><input type="checkbox" id="layerCentroids" /> Cluster Centroids</label>
+          <label><input type="checkbox" id="layerMetro" /> Metro Stations</label>
+          <label><input type="checkbox" id="layerBranches" checked /> Drawn Branch Boundaries</label>
+          <div id="metroStatus" class="rule-hint"></div>
+        </div>
+
+        <div id="ruleControl" class="floating-panel">
+          <div class="floating-panel-title">Cluster assignment rule</div>
+          <select id="assignmentRule">
+            <option value="A">A. Centroid inside polygon</option>
+            <option value="B">B. Majority of cluster area inside polygon</option>
+            <option value="C" selected>C. Majority of sellers inside polygon</option>
+          </select>
+          <div class="rule-hint">Default: C &mdash; robust to the convex-hull boundaries used for Clusters.</div>
+        </div>
+
+        <div id="branchLegend" class="floating-panel" style="bottom:14px; right:12px; top:auto; left:auto; max-height:240px; overflow-y:auto;">
+          <div class="floating-panel-title">Current Territories / Branches</div>
+          <div id="branchLegendList"></div>
+        </div>
+      </div>
+
+      <aside id="sidePanel">
+        <div class="panel-section">
+          <div class="panel-section-title">Overview</div>
+          <div id="overviewStats" class="stats-grid"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">Branch Offices</div>
+          <div id="orgBranchList" class="scroll-list"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">Drawn Branch Boundaries</div>
+          <div id="branchList" class="scroll-list"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">Unmapped Clusters</div>
+          <div id="unmappedList" class="scroll-list"></div>
+        </div>
+
+        <div class="panel-section" id="conflictSection" hidden>
+          <div class="panel-section-title conflict-title">Conflicts &mdash; needs resolution</div>
+          <div id="conflictList" class="scroll-list"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">Drawn Branch Summary</div>
+          <table id="summaryTable" class="summary-table">
+            <thead>
+              <tr><th>Branch</th><th>Clusters</th><th>Sellers</th><th>Eligible</th><th>Ineligible</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="panel-section actions">
+          <button id="drawBranchBtn" class="action-btn">Draw Branch</button>
+          <button id="editBranchBtn" class="action-btn">Edit Branch</button>
+          <button id="deleteBranchBtn" class="action-btn">Delete Branch</button>
+          <button id="resetBtn" class="action-btn danger">Reset Branch Mapping</button>
+          <hr/>
+          <button id="saveProjectBtn" class="action-btn">Save Project (.json)</button>
+          <button id="loadProjectBtn" class="action-btn">Load Project (.json)</button>
+          <input type="file" id="projectFileInput" accept=".json" hidden />
+          <button id="downloadExcelBtn" class="action-btn primary">Download Excel</button>
+          <hr/>
+          <button id="exportStandaloneBtn" class="action-btn">Export Standalone Copy (data.js)</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div id="modalOverlay" class="modal-overlay" hidden>
+  <div id="modalBox" class="modal-box"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- data.js is optional: only present in a packaged "standalone copy" made via
+     the Export Standalone Copy button. A missing file here is harmless. -->
+<script src="data.js"></script>
+<script src="app.js?v=20260921d"></script>
+</body>
+</html>
